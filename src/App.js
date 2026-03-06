@@ -7,6 +7,7 @@ function App() {
   const [codigo, setCodigo] = useState("");
   const [busqueda, setBusqueda] = useState("");
   const [idSeleccionado, setIdSeleccionado] = useState(null);
+
   // --- ESTADO DE AUTENTICACIÓN ---
   const [estaLogueado, setEstaLogueado] = useState(false);
 
@@ -20,17 +21,16 @@ function App() {
     }
   }, [estaLogueado]);
 
-  const cargarEmpleados = () => {
-    fetch(`${API_BASE_URL}/api/empleados`)
-      .then(res => {
-        if (!res.ok) throw new Error(`Error al cargar empleados: ${res.status}`);
-        return res.json();
-      })
-      .then(data => setEmpleados(data))
-      .catch(err => {
-        console.error("Error cargando empleados:", err);
-        alert("No se pudieron cargar los empleados. Revisa la consola o el backend.");
-      });
+  const cargarEmpleados = async () => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/empleados`);
+      if (!res.ok) throw new Error(`Error al cargar empleados: ${res.status}`);
+      const data = await res.json();
+      setEmpleados(data);
+    } catch (err) {
+      console.error("Error cargando empleados:", err);
+      alert("No se pudieron cargar los empleados. Revisa si el backend está activo.");
+    }
   };
 
   const enviarFormulario = async () => {
@@ -56,7 +56,7 @@ function App() {
         setIdSeleccionado(null);
         setNombre("");
         setCodigo("");
-        cargarEmpleados(); // recarga la lista automáticamente
+        await cargarEmpleados(); // recarga la lista
       } else {
         const errorData = await response.json().catch(() => ({}));
         alert("Error al guardar: " + (errorData.message || response.statusText || "Revisa el backend"));
@@ -77,7 +77,7 @@ function App() {
 
       if (response.ok) {
         alert("Registro eliminado");
-        cargarEmpleados();
+        await cargarEmpleados();
       } else {
         alert("Error al eliminar");
       }
