@@ -10,7 +10,7 @@ function App() {
   // --- ESTADO DE AUTENTICACIÓN ---
   const [estaLogueado, setEstaLogueado] = useState(false);
 
-  // URL del backend en Render (cámbiala si tu URL es diferente)
+  // URL del backend en Render (tu URL real)
   const API_BASE_URL = "https://nexus-backend-xl9b.onrender.com";
 
   useEffect(() => {
@@ -23,13 +23,13 @@ function App() {
   const cargarEmpleados = () => {
     fetch(`${API_BASE_URL}/api/empleados`)
       .then(res => {
-        if (!res.ok) throw new Error(`Error ${res.status}`);
+        if (!res.ok) throw new Error(`Error al cargar empleados: ${res.status}`);
         return res.json();
       })
       .then(data => setEmpleados(data))
       .catch(err => {
         console.error("Error cargando empleados:", err);
-        alert("No se pudieron cargar los empleados. Revisa la consola.");
+        alert("No se pudieron cargar los empleados. Revisa la consola o el backend.");
       });
   };
 
@@ -56,14 +56,14 @@ function App() {
         setIdSeleccionado(null);
         setNombre("");
         setCodigo("");
-        cargarEmpleados(); // recarga la lista
+        cargarEmpleados(); // recarga la lista automáticamente
       } else {
-        const errorData = await response.json();
-        alert("Error al guardar: " + (errorData.message || response.statusText));
+        const errorData = await response.json().catch(() => ({}));
+        alert("Error al guardar: " + (errorData.message || response.statusText || "Revisa el backend"));
       }
     } catch (error) {
       console.error("Error en sincronizar:", error);
-      alert("Error de conexión: " + error.message);
+      alert("Error de conexión: " + error.message + ". Verifica que el backend esté activo.");
     }
   };
 
